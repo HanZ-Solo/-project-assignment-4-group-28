@@ -4,6 +4,8 @@ import HomeList from './pages/HomeList';
 import ProductDetail from './pages/Detail';
 import ShoppingCart from './pages/Cart';
 import Pay from './pages/Pay';
+import SignUp from './pages/SignUp';
+
 
 const App = () => {
   return (

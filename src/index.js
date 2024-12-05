@@ -6,6 +6,8 @@ import Login from './pages/Login';
 import Cart from './pages/Cart';
 import Detail from './pages/Detail';
 import Pay from './pages/Pay';
+import SignUp from './pages/SignUp';
+
 const App = () => {
   return (
     <Router>
@@ -15,6 +17,7 @@ const App = () => {
         <Route path="/cart" element={<Cart />} />       
         <Route path="/product/:id" element={<Detail />} />
         <Route path="/Pay" element={<Pay />} />
+        <Route path="/signup" element={<SignUp/>} />
         {/* <Route path="/product/:id" component={Detail} />
         <Route path="/aa" element={<div>默认页面或重定向逻辑</div>} /> */}
       </Routes>
