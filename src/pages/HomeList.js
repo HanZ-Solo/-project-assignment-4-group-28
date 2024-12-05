@@ -20,6 +20,7 @@ const HomeList = () => {
         setFilteredProducts(response.data); // Initialize with all products
         setLoading(false);
       } catch (err) {
+        console.error('Error fetching products:', err.message);
         setError('Failed to fetch product list');
         setLoading(false);
       }
@@ -33,7 +34,9 @@ const HomeList = () => {
     let updatedProducts = products;
 
     if (category !== 'all') {
-      updatedProducts = updatedProducts.filter((product) => product.category.toLowerCase() === category.toLowerCase());
+      updatedProducts = updatedProducts.filter(
+        (product) => product.category.toLowerCase() === category.toLowerCase()
+      );
     }
 
     if (searchQuery) {

@@ -1,113 +1,120 @@
-import React, { useState } from 'react';
-import '../components/css/style.css';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import logo from '../assets/image/logo.png';
-const PaymentPage = () => {
+import '../components/css/style.css';
 
-  const product = {
-    id: 1,
-    name: 'Lenovo IdeaPad Slim 3 Consumer Laptop 15.6" AMD Ryzen 5 7520U 16GB 512GB SSD Windows 11 Home, 82XQ00BECC',
-    description: 'I have to give the IdeaPad Slim 3 a 5 star rating because of the price at Canada Computers which was at the time 210CDN less than most other places I checked online!',
-    price: 99.99,
-    stock: 100,
+const Pay = () => {
+  const [cartItems, setCartItems] = useState([]);
+  const [subtotal, setSubtotal] = useState(0);
+  const [tax, setTax] = useState(0);
+  const [total, setTotal] = useState(0);
+  const navigate = useNavigate();
+  const TAX_RATE = 0.13; // Example tax rate: 13%
+
+  useEffect(() => {
+    // Retrieve cart items from localStorage
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    setCartItems(cart);
+
+    // Calculate subtotal, tax, and total
+    const subtotalAmount = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const taxAmount = subtotalAmount * TAX_RATE;
+    const totalAmount = subtotalAmount + taxAmount;
+
+    setSubtotal(subtotalAmount);
+    setTax(taxAmount);
+    setTotal(totalAmount);
+  }, []);
+
+  const handlePayment = () => {
+    // Simulate order details
+    const orderId = `ORD-${Math.floor(Math.random() * 1000000)}`;
+    const orderDetails = {
+      orderId,
+      items: cartItems,
+      subtotal,
+      tax,
+      total,
+      date: new Date().toLocaleString(),
+    };
+  
+    // Save order details (Simulated Backend Storage)
+    localStorage.setItem('lastOrder', JSON.stringify(orderDetails));
+  
+    // Clear the cart
+    localStorage.removeItem('cart');
+  
+    // Construct the email content
+    const emailContent = {
+      subject: 'Order Confirmation',
+      body: `Thank you for your purchase! 
+  Order ID: ${orderDetails.orderId}
+  Date: ${orderDetails.date}
+  Total: $${total.toFixed(2)}
+  Items:
+  ${orderDetails.items
+    .map((item) => `- ${item.name} x ${item.quantity} @ $${item.price.toFixed(2)}`)
+    .join('\n')}`,
+    };
+  
+    // Notify the user
+    alert(`Email Sent:\nSubject: ${emailContent.subject}\n\n${emailContent.body}`);
+  
+    // Redirect to the homepage
+    navigate('/');
   };
-
- 
-  const [quantity, setQuantity] = useState(1);
-  const [totalPrice, setTotalPrice] = useState(product.price);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-
-  const calculateTotalPrice = (qty) => {
-    const price = qty * product.price;
-    setTotalPrice(price.toFixed(2)); 
-  };
-
-
-  const handleQuantityChange = (e) => {
-    const qty = parseInt(e.target.value, 10);
-    if (qty > 0 && qty <= product.stock) {
-      setQuantity(qty);
-      calculateTotalPrice(qty);
-    } else {
-      alert('Please enter a valid quantity.');
-    }
-  };
-
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-   
-    setTimeout(() => {
-      setIsSubmitting(false);
-      alert('Payment successful! Thank you for your purchase.');
-      
-    }, 2000); 
-  };
+  
 
   return (
-    <div className='pw'>
-      
-      <div className='menu'>
-            <div className='menucenter'>
-                <div className='menus'>
-                    <img src={logo}></img>
-                </div>
-                <div className='menus'>
-                    <input></input>
-                    <button>Search</button>
-                </div>
-                <div className='menus'>
-                    <ul>
-                        <li><a href='/'>Home</a></li>
-                        <li><a href='/login'>Sign in</a></li>
-                        <li><a href='/cart'>Cart</a></li>
-                    </ul>
-                </div>
-            </div>
-   </div>
-
-   <div className='cartimg'>
-      <img src={require('../assets/image/00.jpg')} alt="Logo" />
-      </div>
-
-
-    <div className="payment-page">
-      <h1>Product Payment Page</h1>
-      <div className="product-details">
-        <h2>{product.name}</h2>
-        <p>{product.description}</p>
-        <p>Price: ${product.price.toFixed(2)}</p>
-        <p>Stock: {product.stock}</p>
-      </div>
-      <form onSubmit={handleSubmit}>
-        <div className="quantity-selector">
-          <label>
-            Quantity:
-            <input
-              type="number"
-              value={quantity}
-              min="1"
-              max={product.stock}
-              onChange={handleQuantityChange}
-            />
-          </label>
+    <div className="payment-container">
+      <header className="menu">
+        <div className="menucenter">
+          <div className="menus">
+            <img src={logo} alt="Logo" />
+          </div>
+          <div className="menus">
+            <input type="text" placeholder="Search..." />
+            <button>Search</button>
+          </div>
+          <div className="menus">
+            <ul>
+              <li><a href="/">Home</a></li>
+              <li><a href="/cart">Cart</a></li>
+            </ul>
+          </div>
         </div>
-        <div className="total-price">
-          <p>Total Price: ${totalPrice}</p>
-        </div>
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Processing...' : 'Submit Payment'}
+      </header>
+
+      <main className="payment-content">
+        <h1>Checkout and Payment</h1>
+
+        {/* Order Summary */}
+        <h2>Order Summary</h2>
+        <ul className="order-list">
+          {cartItems.map((item) => (
+            <li key={item.productId} className="order-item">
+              <span className="item-name">{item.name}</span>
+              <span className="item-quantity">x {item.quantity}</span>
+              <span className="item-price">${item.price.toFixed(2)}</span>
+            </li>
+          ))}
+        </ul>
+        <h3>Subtotal: ${subtotal.toFixed(2)}</h3>
+        <h3>Tax (13%): ${tax.toFixed(2)}</h3>
+        <h2>Total: ${total.toFixed(2)}</h2>
+
+        {/* Payment Button */}
+        <button className="proceed-button" onClick={handlePayment}>
+          Pay Now
         </button>
-      </form>
-    </div>
+      </main>
 
-    <div className='foot'>
+      <footer className="foot">
         <p>Welcome to the computer store</p>
         <p>2024 The website copyright belongs to the author</p>
-     </div>
+      </footer>
     </div>
   );
 };
 
-export default PaymentPage;
+export default Pay;
