@@ -70,7 +70,6 @@ const ShoppingCart = () => {
 
 
       <div className='cartimg'>
-      <img src={require('../assets/image/00.jpg')} alt="Logo" />
       </div>
 
     <div className="shopping-cart">

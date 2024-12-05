@@ -1,113 +1,105 @@
-// src/App.js
-
+import React, { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import axios from 'axios';
 import '../components/css/style.css';
 import logo from '../assets/image/logo.png';
-import { useParams } from 'react-router-dom';
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-
-
-
-
-
-const fetchProductDetail = (productId) => {
- 
-  return {
-    id: productId,
-    name: 'HP Pavilion Laptop 16" OLED Intel Ultra 5 125U 16GB 512GB SSD Windows 11 Home, A9FY2UA#ABL',
-    model: 'iMac 2020',
-    category:'Destop',
-    manufacturer:'Apple',
-    specifications:'Intel Core i9,32GB RAM, 1TB SSD',
-    address:'cupertino, California, UsA',
-    releaseDate:'2020-08-04',
-    stock:100,
-    price: 199.99,
-    imageUrl: require('../assets/image/BJB.png'),
-    detailimg:require('../assets/image/1.png'),
-  };
-};
 
 const ProductDetail = () => {
+  const { id } = useParams(); // Extract productId from URL
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [quantity, setQuantity] = useState(1);
 
-    const [quantity, setQuantity] = useState(1); 
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/products/${id}`);
+        setProduct(response.data);
+        setLoading(false);
+      } catch (err) {
+        console.error('Failed to fetch product details:', err.message);
+        setError('Failed to fetch product details');
+        setLoading(false);
+      }
+    };
 
-    const handleIncrement = () => {
-        setQuantity(prevQuantity => prevQuantity + 1);
-      };
-      const handleDecrement = () => {
-        if (quantity > 1) {
-          setQuantity(prevQuantity => prevQuantity - 1);
-        }
-      };
+    fetchProduct();
+  }, [id]);
 
-    
-  const { id } = useParams(); 
-  const product = fetchProductDetail(parseInt(id)); 
+  const handleIncrement = () => setQuantity((prev) => prev + 1);
+  const handleDecrement = () => quantity > 1 && setQuantity((prev) => prev - 1);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
+  if (!product) return <p>No product found</p>;
 
   return (
-    
-<div className='power'>
+    <div className="power">
+      {/* Header Section */}
+      <div className="menu">
+        <div className="menucenter">
+          <div className="menus">
+            <img src={logo} alt="Logo" />
+          </div>
+          <div className="menus">
+            <input type="text" placeholder="Search..." />
+            <button>Search</button>
+          </div>
+          <div className="menus">
+            <ul>
+              <li><Link to="/">Home</Link></li>
+              <li><Link to="/login">Sign in</Link></li>
+              <li><Link to="/cart">Cart</Link></li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
-  <div className='menu'>
-            <div className='menucenter'>
-                <div className='menus'>
-                    <img src={logo}></img>
-                </div>
-                <div className='menus'>
-                    <input></input>
-                    <button>Search</button>
-                </div>
-                <div className='menus'>
-                    <ul>
-                        <li><a href='/'>Home</a></li>
-                        <li><a href='/login'>Sign in</a></li>
-                        <li><a href='/cart'>Cart</a></li>
-                    </ul>
-                </div>
-            </div>
-   </div>
+      {/* Product Banner Section */}
+      <div className="cartimg">
+        <img src="https://via.placeholder.com/1200x300" alt="Banner" />
+      </div>
 
-      <div className='cartimg'>
-       <img src={require('../assets/image/00.jpg')} alt="Logo" />
+      {/* Product Details Section */}
+      <div className="product-detail">
+        <img src={product.imageUrl} alt={product.name} />
+        <div className="content">
+          <h1>{product.name}</h1>
+          <p>Price: ${product.price.toFixed(2)}</p>
+          <p>Stock: {product.stock}</p>
+          <p>Processor: {product.specifications.processor}</p>
+          <p>RAM: {product.specifications.ram}</p>
+          <p>Storage: {product.specifications.storage}</p>
+          <p>Operating System: {product.specifications.os}</p>
+          <p>Category: {product.category}</p>
+          <p>Brand: {product.brand}</p>
+          <p>Release Date: {product.releaseDate}</p>
+          <div className="quantity-control">
+            Qty:
+            <button onClick={handleDecrement} disabled={quantity <= 1}>-</button>
+            <span>{quantity}</span>
+            <button onClick={handleIncrement}>+</button>
+          </div>
+          <Link to="/cart">
+          <button className="addcart">Add to Cart</button>
+          </Link>
+          <Link to="/pay">
+            <button className="buynow">Buy Now</button>
+          </Link>
+        </div>
+        <div className="detail">
+          <p>Detail</p>
+          <img src={product.imageUrl} alt="Detail" />
+        </div>
       </div>
-    <div className="product-detail">
-      <img src={product.imageUrl} alt={product.name} />
-      <div className='content'>
-      <h1>{product.name}</h1>
-      
-      <p>price: ${product.price.toFixed(2)}<span>$699.9</span></p>
-      <p>stock:{product.stock}</p>
-      <p>model:{product.model} &nbsp; category:{product.category}&nbsp;&nbsp;manufacturer:{product.manufacturer}</p>
-      <p>specifications:{product.specifications}</p>
-      <p>address:{product.address}</p>
-      <p>releaseDate:{product.releaseDate}</p>
-      <div className="quantity-control">
-      Qty:
-        <button onClick={handleDecrement} disabled={quantity <= 1}>-</button>
-        <span>{quantity}</span>
-        <button onClick={handleIncrement}>+</button>
-      </div>
-      <Link to="/cart">
-      <button className='addcart'>Add to cart</button>
-      </Link>
-      <Link to="/pay">
-      <button className='buynow'>Buy Now</button>
-      </Link>
-      </div>
-      <div className='detail'>
-        <p>Detail</p>
-        <img src={product.detailimg}></img>
-      </div>
-      
-    </div>
 
-    <div className='foot'>
+      {/* Footer Section */}
+      <div className="foot">
         <p>Welcome to the computer store</p>
         <p>2024 The website copyright belongs to the author</p>
-     </div>
-</div>
-    
+      </div>
+    </div>
   );
 };
 
