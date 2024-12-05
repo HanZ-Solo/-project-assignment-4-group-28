@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../components/css/style.css';
 import logo from '../assets/image/logo.png';
@@ -9,15 +9,19 @@ const HomeList = () => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [category, setCategory] = useState('all'); // State for the selected category
-  const [searchQuery, setSearchQuery] = useState(''); // State for search input
+  const [category, setCategory] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
+    // Fetch products
     const fetchProducts = async () => {
       try {
         const response = await axios.get('http://localhost:5000/api/products');
         setProducts(response.data);
-        setFilteredProducts(response.data); // Initialize with all products
+        setFilteredProducts(response.data);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching products:', err.message);
@@ -27,9 +31,19 @@ const HomeList = () => {
     };
 
     fetchProducts();
+
+    // Check login state
+    const user = JSON.parse(localStorage.getItem('user'));
+    setIsLoggedIn(!!user); // Set login state based on user data in localStorage
   }, []);
 
-  // Filter products based on category or search query
+  const handleLogout = () => {
+    localStorage.removeItem('user'); // Remove user data from localStorage
+    setIsLoggedIn(false); // Update login state
+    navigate('/'); // Redirect to home page
+  };
+
+  // Filtering logic for category and search
   useEffect(() => {
     let updatedProducts = products;
 
@@ -81,8 +95,18 @@ const HomeList = () => {
           <div className="menus">
             <ul>
               <li><Link to="/">Home</Link></li>
-              <li><Link to="/login">Sign In</Link></li>
-              <li><Link to="/signup">Sign Up</Link></li>
+              {isLoggedIn ? (
+                <>
+                  <li>
+                    <button onClick={handleLogout}>Logout</button>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li><Link to="/login">Sign In</Link></li>
+                  <li><Link to="/signup">Sign Up</Link></li>
+                </>
+              )}
               <li><Link to="/cart">Cart</Link></li>
             </ul>
           </div>
