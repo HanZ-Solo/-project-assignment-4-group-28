@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import {jwtDecode} from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
@@ -59,41 +59,53 @@ const OrderHistory = () => {
   }
 
   return (
-    <div className="order-history">
+    <div className="order-history table-container">
       <h1>Order History</h1>
       {orders.length === 0 ? (
         <p>No orders found.</p>
       ) : (
-        <ul>
-          {orders.map((order) => (
-            <li key={order.orderId}>
-              <p>Order ID: {order.orderId}</p>
-              <p>Status: {order.status}</p>
-              <p>Total Amount: ${order.totalAmount.toFixed(2)}</p>
-              <p>Timestamp: {new Date(order.timestamp).toLocaleString()}</p>
-              <h3>Items:</h3>
-              <ul>
-                {order.items.map((item, index) => {
-                  const product = products[item.productId];
-                  return (
-                    <li key={index}>
-                      {product ? (
-                        <div>
-                          <p>Product Name: {product.name}</p>
-                          <p>Brand: {product.brand}</p>
-                          <p>Price: ${product.price.toFixed(2)}</p>
-                          <p>Quantity: {item.quantity}</p>
-                        </div>
-                      ) : (
-                        <p>Loading product details...</p>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-            </li>
-          ))}
-        </ul>
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Status</th>
+              <th>Total Amount</th>
+              <th>Timestamp</th>
+              <th>Items</th>
+            </tr>
+          </thead>
+          <tbody>
+            {orders.map((order) => (
+              <tr key={order.orderId}>
+                <td>{order.orderId}</td>
+                <td>{order.status}</td>
+                <td>${order.totalAmount.toFixed(2)}</td>
+                <td>{new Date(order.timestamp).toLocaleString()}</td>
+                <td>
+                  <ul>
+                    {order.items.map((item, index) => {
+                      const product = products[item.productId];
+                      return (
+                        <li key={index}>
+                          {product ? (
+                            <div>
+                              <p><strong>Name:</strong> {product.name}</p>
+                              <p><strong>Brand:</strong> {product.brand}</p>
+                              <p><strong>Price:</strong> ${product.price.toFixed(2)}</p>
+                              <p><strong>Quantity:</strong> {item.quantity}</p>
+                            </div>
+                          ) : (
+                            <p>Loading product details...</p>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );

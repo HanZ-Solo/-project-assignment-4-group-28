@@ -71,6 +71,7 @@ const ProductManagement = () => {
       <h1>Product Management</h1>
       {error && <p className="error-message">{error}</p>}
       {success && <p className="success-message">{success}</p>}
+      <div className="table-container">
       <table>
         <thead>
           <tr>
@@ -164,6 +165,7 @@ const ProductManagement = () => {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 };

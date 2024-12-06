@@ -96,7 +96,7 @@ const ProfileManagement = () => {
     };
 
     return (
-        <div className="profile-management">
+        <div className="form-container profile-management">
             <h1>Profile Management</h1>
             {error && <p className="error-message">{error}</p>}
             {success && <p className="success-message">{success}</p>}
