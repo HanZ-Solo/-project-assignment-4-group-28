@@ -36,13 +36,40 @@ router.get('/', async (req, res) => {
 // Create a new order
 router.post('/', async (req, res) => {
     try {
+        // Log the incoming request body
+        console.log('Received Order Data:', req.body);
+
+        // Extract fields from the request body
+        const { orderId, userId, items, totalAmount, status, timestamp } = req.body;
+
+        // Log individual fields for debugging
+        console.log('Order ID:', orderId);
+        console.log('User ID:', userId);
+        console.log('Items:', items);
+        console.log('Total Amount:', totalAmount);
+        console.log('Status:', status);
+        console.log('Timestamp:', timestamp);
+
+        // Validate required fields
+        if (!orderId || !userId || !items || !totalAmount || !status || !timestamp) {
+            console.error('Validation Failed: Missing required fields');
+            return res.status(400).json({ message: 'Missing required fields' });
+        }
+
+        // Create a new order
         const newOrder = new Order(req.body);
-        await newOrder.save();
-        res.status(201).json(newOrder);
+        const savedOrder = await newOrder.save();
+
+        // Log the saved order details
+        console.log('Order Saved Successfully:', savedOrder);
+
+        res.status(201).json(savedOrder);
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        console.error('Error Creating Order:', err);
+        res.status(500).json({ message: 'Server error' });
     }
 });
+
 
 // Update order status by orderId
 router.put('/:orderId', async (req, res) => {
