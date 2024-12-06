@@ -11,7 +11,7 @@ const HomeList = () => {
   const [error, setError] = useState(null);
   const [category, setCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
 
   const navigate = useNavigate();
 
@@ -32,15 +32,15 @@ const HomeList = () => {
 
     fetchProducts();
 
-    // Check login state
-    const user = JSON.parse(localStorage.getItem('user'));
-    setIsLoggedIn(!!user); // Set login state based on user data in localStorage
+    // Check login state and user role
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    setUser(storedUser);
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('user'); // Remove user data from localStorage
-    setIsLoggedIn(false); // Update login state
-    navigate('/'); // Redirect to home page
+    localStorage.removeItem('user'); // Remove user session
+    setUser(null); // Reset user state
+    navigate('/'); // Redirect to home
   };
 
   // Filtering logic for category and search
@@ -95,8 +95,20 @@ const HomeList = () => {
           <div className="menus">
             <ul>
               <li><Link to="/">Home</Link></li>
-              {isLoggedIn ? (
+              {user ? (
                 <>
+                  {user.role === 'admin' ? (
+                    <>
+                      <li><Link to="/profile-management">Profile Management</Link></li>
+                      <li><Link to="/products-management">Products Management</Link></li>
+                      <li><Link to="/order-management">Order Management</Link></li>
+                    </>
+                  ) : (
+                    <>
+                      <li><Link to="/profile-management">Profile Management</Link></li>
+                      <li><Link to="/order-history">Order History</Link></li>
+                    </>
+                  )}
                   <li>
                     <button onClick={handleLogout}>Logout</button>
                   </li>
@@ -107,7 +119,7 @@ const HomeList = () => {
                   <li><Link to="/signup">Sign Up</Link></li>
                 </>
               )}
-              <li><Link to="/cart">Cart</Link></li>
+              {user && user.role !== 'admin' && <li><Link to="/cart">Cart</Link></li>}
             </ul>
           </div>
         </div>
@@ -131,13 +143,20 @@ const HomeList = () => {
           {filteredProducts.length > 0 ? (
             filteredProducts.map((product) => (
               <li key={product.productId}>
-                <Link to={`/product/${product.productId}`}>
-                  <img src={product.imageUrl} alt={product.name} />
+                {user && user.role === 'admin' ? (
                   <div>
+                    <img src={product.imageUrl} alt={product.name} />
                     <p>{product.name}</p>
-                    <p>${product.price.toFixed(2)}</p>
                   </div>
-                </Link>
+                ) : (
+                  <Link to={`/product/${product.productId}`}>
+                    <img src={product.imageUrl} alt={product.name} />
+                    <div>
+                      <p>{product.name}</p>
+                      <p>${product.price.toFixed(2)}</p>
+                    </div>
+                  </Link>
+                )}
               </li>
             ))
           ) : (

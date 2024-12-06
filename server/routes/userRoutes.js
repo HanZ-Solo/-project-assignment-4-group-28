@@ -20,7 +20,7 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid password' });
     }
 
-    const token = jwt.sign({ id: user._id, role: user.role }, 'your_secret_key', { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id, role: user.role, userId: user.userId }, 'your_secret_key', { expiresIn: '1h' });
     res.json({ username: user.username, role: user.role, token });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
@@ -89,11 +89,29 @@ router.get('/', async (req, res) => {
 // Get user by ID
 router.get('/:id', async (req, res) => {
   try {
-    const user = await User.findOne({ userId: req.params.id });
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
     res.json(user);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+// Get user by userId
+router.get('/userId/:userId', async (req, res) => {
+  try {
+    const user = await User.findOne({ userId: req.params.userId }); // Query by userId
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user);
+  } catch (error) {
+    console.error('Error fetching user by userId:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
@@ -111,17 +129,32 @@ router.post('/', async (req, res) => {
 // Update user by ID
 router.put('/:id', async (req, res) => {
   try {
-    const updatedUser = await User.findOneAndUpdate(
-      { userId: req.params.id },
-      req.body,
-      { new: true }
-    );
-    if (!updatedUser) return res.status(404).json({ error: 'User not found' });
-    res.json(updatedUser);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
+    const { name, email, password, profile } = req.body;
+    const updatedFields = {};
+
+    if (name) updatedFields.username = name; // Match the schema field
+    if (email) updatedFields.email = email;
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      updatedFields.password = await bcrypt.hash(password, salt);
+    } // Ensure password hashing if needed
+    if (profile) {
+      if (profile.addresses) updatedFields['profile.addresses'] = profile.addresses;
+      if (profile.paymentMethods) updatedFields['profile.paymentMethods'] = profile.paymentMethods;
+    }
+
+    const user = await User.findByIdAndUpdate(req.params.id, updatedFields, { new: true });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json(user);
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(400).json({ message: 'Invalid data format' });
   }
 });
+
 
 // Delete user by ID
 router.delete('/:id', async (req, res) => {

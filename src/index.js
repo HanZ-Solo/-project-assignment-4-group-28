@@ -7,6 +7,10 @@ import Cart from './pages/Cart';
 import Detail from './pages/Detail';
 import Pay from './pages/Pay';
 import SignUp from './pages/SignUp';
+import OrderHistory from './pages/OrderHistory';
+import ProductsManagement from './pages/ProductManagement';
+import ProfileManagement from './pages/ProfileManagement';
+import OrderManagement from './pages/OrderManagement';
 
 const App = () => {
   return (
@@ -18,6 +22,10 @@ const App = () => {
         <Route path="/product/:id" element={<Detail />} />
         <Route path="/Pay" element={<Pay />} />
         <Route path="/signup" element={<SignUp/>} />
+        <Route path="/profile-management" element={<ProfileManagement />} /> 
+        <Route path="/products-management" element={<ProductsManagement />} /> 
+        <Route path="/order-history" element={<OrderHistory />} /> 
+        <Route path="/order-management" element={<OrderManagement />} /> 
         {/* <Route path="/product/:id" component={Detail} />
         <Route path="/aa" element={<div>默认页面或重定向逻辑</div>} /> */}
       </Routes>
